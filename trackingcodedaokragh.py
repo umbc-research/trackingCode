@@ -44,7 +44,7 @@ date = input("What was the date when these were captured? (YYYYMMDD)\n")
 
 #===================================================================
 # SET THE DESTINATION PATH FOR THE DATA OUTPUT
-worksheetName = "<DESIRED PATH HERE>" + name + "_" + date + ".csv"
+worksheetName = "<DESIRED PATH HERE>" + "\\" + name + "_" + date + ".csv"
 #===================================================================
 
 
