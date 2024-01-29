@@ -1,3 +1,12 @@
+# Script: trackingcodedaokragh.py
+# Author: Connor Kragh
+# Organization: UMBC Observatory
+# Description: A user inputs a series of images taken with the UMBC Observatory equipment,
+# and the relative RA and Dec tracking rates are output into some file format
+
+# NOTES: The camera used to capture the images being analyzed MUST be NORTH ALIGNED 
+# or the RA and Dec rates will be inaccurate
+
 # -*- coding: utf-8 -*-
 from astropy.io import fits
 from matplotlib import pyplot as plt
@@ -111,5 +120,3 @@ df_rows = df.shape[0]
 df_cols = df.shape[1]
 
 df.to_csv(path_or_buf=worksheetName)
-
-# Like something
