@@ -8,6 +8,8 @@
 # or the RA and Dec rates will be inaccurate
 
 # -*- coding: utf-8 -*-
+import argparse
+import os
 from astropy.io import fits
 from matplotlib import pyplot as plt
 import numpy as np
@@ -18,33 +20,88 @@ from photutils.detection import DAOStarFinder, IRAFStarFinder
 # Sets up scopes array
 scopes = [["Main Scope", 6500], ["Finderscope", 1140]]
 
-# Asks user how many frames were taken
-numOfCaps = int(input("How many frames were taken?\n" ))
+# Adds and parses arguments from command line
+parser = argparse.ArgumentParser(prog='Tracking Analysis', usage='%(prog)s Options')
+parser.add_argument('-files', help='Folder containing input FITS files to be processed go here')
+parser.add_argument('-interval', help='the length of time between captures (s)')
+parser.add_argument('-telescope', help='input "MAIN" or "FINDER" based on scope used for data capture')
+parser.add_argument('-object', help='input the name of the object being imaged')
+parser.add_argument('-dateOfCapture', help='input date of capture in format YYYYMMDD')
+parser.add_argument('-outpath', help='input the path to a folder that can accept the outputted data')
+args = parser.parse_args()
 
-# timeInt is measured in Seconds and is the waiting time in between captures
-timeInt = int(input("What is the time interval in between captures (s)?\n" ))
-print(f"Taken {numOfCaps} captures with {timeInt} seconds between captures")
-
-# preps file array
+# preps array of files
 file = []
-# PROVIDE INPUT FILES HERE
-for x in range(numOfCaps):
-  file.append(input(f"What is file #{x+1}?\n"))
-  print("")
 
-# User selects scope used to take picture
-print(f"1. {scopes[0][0]}\n2. {scopes[1][0]}")
-scopeNum = int(input("Which scope was used to take the image? (#)\n")) - 1
+# Extracts files from computer and adds to file vector or takes input if not supplied
+if args.files == None:
+# Asks user how many frames were taken
+  numOfCaps = int(input("How many frames were taken?\n" ))
+  
+  # PROVIDE INPUT FILES HERE
+  for x in range(numOfCaps):
+    file.append(input(f"What is file #{x+1}?\n"))
+    print("")
 
+# Adds group of files to the file vector
+else:
+  for x in os.listdir(args.files):
+    file.append(args.files + '\\' + x)
 
-# Uses name of object and date observed as the naming convention
-name = input("What object was captured?\n" )
-date = input("What was the date when these were captured? (YYYYMMDD)\n")
+  # Determines amount of captures in series
+  numOfCaps = len(file)
 
+# Extracts the time interval between captures or takes input if not supplied
+
+if args.interval == None:
+# timeInt is measured in Seconds and is the waiting time in between captures
+  timeInt = int(input("What is the time interval in between captures (s)?\n" ))
+  print(f"Taken {numOfCaps} captures with {timeInt} seconds between captures")
+
+else:
+  timeInt = int(args.interval)
+
+# Extracts the telescope used from parser
+# If either no telescope is entered or an invalid entry is provided, it asks for it
+if args.telescope == "MAIN":
+  scopeNum = 0
+elif args.telescope == "FINDER":
+  scopeNum = 1
+else:
+  # User selects scope used to take picture
+  print(f"1. {scopes[0][0]}\n2. {scopes[1][0]}")
+  scopeNum = int(input("Which scope was used to take the image? (#)\n")) - 1
+  while scopeNum != 0 and scopeNum != 1:
+    print(f"Invalid Telescope input. \n1. {scopes[0][0]}\n2. {scopes[1][0]}")
+    scopeNum = int(input("Which scope was used to take the image? (#)\n")) - 1
+
+# Extracts the object name from parser or takes input if not supplied
+    
+if args.object == None:
+  # Uses name of object in naming convention
+  name = input("What object was captured?\n")
+else:
+  name = args.object
+
+#Extracts the date observed from parser or takes input if not supplied
+
+if args.dateOfCapture == None:
+  # Uses ndate observed in naming convention
+  date = input("What was the date when these were captured? (YYYYMMDD)\n")
+else:
+  date = args.dateOfCapture
+
+# Extracts the desired folder to output the data to or takes input if not supplied
+
+if args.outpath == None:
+  path = input("Where should the analyzed data be output? (Copy Path of desired folder)\n")
+
+else:
+  path = args.outpath
 
 #===================================================================
 # SET THE DESTINATION PATH FOR THE DATA OUTPUT
-worksheetName = "<DESIRED PATH HERE>" + "\\" + name + "_" + date + ".csv"
+worksheetName = path + "\\" + name + "_" + date + ".csv"
 #===================================================================
 
 
@@ -103,11 +160,6 @@ for i in range(numOfSources):
       yRate = yMovement/timeInt
       # adding to rates
       trackingRates.append([int(i+1), int(j+1), captureArray[j][i]['xcentroid'], xMovement, xRate, captureArray[j][i]['ycentroid'], yMovement, yRate])
-
-# THIS BLOCK OUTPUTS TO GOOGLE SHEETS DOC
-
-# Morphs tracking data into structure that can be outputted
-#sh = gc.open('TrackingCodeOutput')
 
 #Loads Data into dataframe
 df = pd.DataFrame(trackingRates[1:], columns=['Source', 'Capture', 'X Centroid (pix)','X Movement (")', 'X Rate ("/s)', 'Y Centroid (pix)', 'Y Movement (")','Y Rate ("/s)'])
