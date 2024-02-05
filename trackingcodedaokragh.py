@@ -137,10 +137,6 @@ for x in hdus:
   # Builds array of source data
   captureArray.append(sources[:numOfSources])
 
-  # Marks on plots where sources are
-  for y in sources[:numOfSources]:
-    plt.scatter(int(y["xcentroid"]), int(y["ycentroid"]), facecolors='none', edgecolors="r")
-
 # Builds data structure of tracking data
 
 # To access element: captureArray[capture number - 1][source number - 1]['column name']
