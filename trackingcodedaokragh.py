@@ -46,7 +46,8 @@ if args.files == None:
 # Adds group of files to the file vector
 else:
   for x in os.listdir(args.files):
-    file.append(args.files + '\\' + x)
+    if x.endswith('.fits') or x.endswith('.fit'):
+      file.append(args.files + '\\' + x)
 
   # Determines amount of captures in series
   numOfCaps = len(file)
@@ -131,7 +132,7 @@ for x in hdus:
   # Finds number of sources pictured based on some threshhold
   numOfSources = 0
   for y in sources:
-    if y["peak"] > 10*skyBrightness:
+    if y["peak"] > 10*skyBrightness and numOfSources < 5:
       numOfSources = numOfSources + 1
 
   # Builds array of source data
