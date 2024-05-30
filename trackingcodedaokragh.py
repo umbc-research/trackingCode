@@ -18,7 +18,7 @@ from scipy.optimize import curve_fit
 from photutils.detection import DAOStarFinder, IRAFStarFinder
 
 # Sets up scopes array
-scopes = [["Main Scope", 6500], ["Finderscope", 1140]]
+scopes = [["Main Scope", 6500000], ["Finderscope", 1140000]]
 
 # Adds and parses arguments from command line
 parser = argparse.ArgumentParser(prog='Tracking Analysis', usage='%(prog)s Options')
@@ -113,8 +113,8 @@ for x in file:
   hdus.append(hduList[0])
 
 # Converts mm per pixel to arcseconds per pixel for later conversion
-xArcsecsPerPixel = (hduList[0].header["XPIXSZ"]/scopes[scopeNum][1])*3600
-yArcsecsPerPixel = (hduList[0].header["YPIXSZ"]/scopes[scopeNum][1])*3600
+xArcsecsPerPixel = (hduList[0].header["XPIXSZ"]/scopes[scopeNum][1])*180/np.pi*3600
+yArcsecsPerPixel = (hduList[0].header["YPIXSZ"]/scopes[scopeNum][1])*180/np.pi*3600
 
 
 captureArray = []
@@ -152,6 +152,7 @@ for i in range(numOfSources):
       # finding x rate
       xMovement = (captureArray[j][i]['xcentroid'] - captureArray[j-1][i]['xcentroid']) * xArcsecsPerPixel
       xRate = xMovement/timeInt
+
       # finding y rate
       yMovement = (captureArray[j][i]['ycentroid'] - captureArray[j-1][i]['ycentroid']) * yArcsecsPerPixel
       yRate = yMovement/timeInt
